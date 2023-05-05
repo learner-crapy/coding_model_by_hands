@@ -57,16 +57,27 @@ model = Linear_Regression()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
 loss_fn = nn.MSELoss()
 # 开始训练
+batch_size=10
 for epoch in range(1000):
-    for x in X:
-        x = torch.transpose(x, 1, 0)
+    x_batch = []
+    y_batch = []
+    for i in range(X.shape[0]):
+        x = torch.transpose(X[i], 1, 0)
+        x_batch.append(x)
         y = torch.matmul(x, torch.transpose(W, 1, 0))+1
-        pred = model(x)
-        loss = loss_fn(pred, y)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        print(loss.item())
+        y_batch.append(y)
+
+        if (i+1)%batch_size == 0:
+            x_batch = torch.stack([torch.tensor(x).clone() for x in x_batch], dim=0)
+            y_batch = torch.stack([torch.tensor(y).clone() for y in y_batch], dim=0)
+            pred = model(x_batch)
+            loss = loss_fn(pred, y_batch)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            print(loss.item())
+            x_batch = []
+            y_batch = []
 
 with torch.no_grad():
     print(model(torch.tensor([2.0, 2.0, 2.0])))
@@ -75,31 +86,31 @@ true_label = torch.matmul(torch.tensor([2.0, 2.0, 2.0]).unsqueeze(0), torch.tran
 print(true_label)
 
 
-# 模型定义完毕，下面需要进行训练，生成100个数据，以方程y=2x+1为基础，加上一些噪声
-# 生成数据
-x = torch.rand(100, 1)
-y = 10 * x + 1 + torch.rand(100, 1)
-x = sum(x.tolist(), [])
-y = sum(y.tolist(), [])
-
-
-# 定义优化器和损失函数
-model = linear_equations()
-optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
-loss_fn = nn.MSELoss()
-
-# 开始训练
-for epoch in range(0, 1000):
-    for xi, yi in zip(x, y):
-        xi = torch.tensor(xi).unsqueeze(0)
-        yi = torch.tensor(yi).unsqueeze(0)
-        y_pred = model(xi)
-        loss = loss_fn(y_pred, yi)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        print(loss.item())
-        # print(list(model.parameters()))
-
-with torch.no_grad():
-    print(model(torch.tensor([2.0])))
+# # 模型定义完毕，下面需要进行训练，生成100个数据，以方程y=2x+1为基础，加上一些噪声
+# # 生成数据
+# x = torch.rand(100, 1)
+# y = 10 * x + 1 + torch.rand(100, 1)
+# x = sum(x.tolist(), [])
+# y = sum(y.tolist(), [])
+#
+#
+# # 定义优化器和损失函数
+# model = linear_equations()
+# optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+# loss_fn = nn.MSELoss()
+#
+# # 开始训练
+# for epoch in range(0, 1000):
+#     for xi, yi in zip(x, y):
+#         xi = torch.tensor(xi).unsqueeze(0)
+#         yi = torch.tensor(yi).unsqueeze(0)
+#         y_pred = model(xi)
+#         loss = loss_fn(y_pred, yi)
+#         optimizer.zero_grad()
+#         loss.backward()
+#         optimizer.step()
+#         print(loss.item())
+#         # print(list(model.parameters()))
+#
+# with torch.no_grad():
+#     print(model(torch.tensor([2.0])))
