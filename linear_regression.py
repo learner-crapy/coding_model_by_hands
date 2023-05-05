@@ -12,21 +12,21 @@ from torch import nn
 class linear_equations(nn.Module):
     def __init__(self):
         super(linear_equations, self).__init__()
-        self.a = nn.Linear(1, 1)
-        self.b = nn.Linear(1, 1)
+        self.layer = nn.Linear(1, 1)
+        # self.b = nn.Linear(1, 1)
 
     # 输入的是一个坐标，(x,y)，x和y都是一个数值
     def forward(self, x):
-        x = self.a(x)
-        x = self.b(x)
+        x = self.layer(x)
+        # x = self.b(x)
         return x
 
 
 '''
 线性回归
 模型：y=WTX+b，W，X是向量，b, y是一个值
-同样的，两层搞定,按照下面的定义，似乎偏置不能够被计算出来，以下面的例子来看，正确结果应该是13，但是偏置1没有没加上才得到12
-看了手动学习深度学习的例子，可能只需要一层dense就可以，因为这里只有w和b两个参数，设置Linear(2,1)代表输入两个特征
+同样的，两层搞定,按照下面的定义，似乎偏置不能够被计算出来，以下面的例子来看，正确结果应该是13，但是偏置1没有没加上才得到12(后检查发现在计算y时本身就少加了个1)
+看了手动学习深度学习的例子，可能只需要一层dense就可以，因为这里只有w和b两个参数，设置Linear(2,1)代表输入两个特征，这并不带代表着这一层的输出为（2,1）,而是接收的变量最后一个维度为2，输出的最后一个维度为1，其他的维度还要看输入的数据本身
 参考https://zhuanlan.zhihu.com/p/33223290
 每一个dense层都有权重和偏置，所以只需要一层足以
 '''
@@ -35,12 +35,12 @@ class linear_equations(nn.Module):
 class Linear_Regression(nn.Module):
     def __init__(self):
         super(Linear_Regression, self).__init__()
-        self.W = nn.Linear(3, 1)
-        self.b = nn.Linear(1, 1)
+        self.layer = nn.Linear(3, 1)
+        # self.b = nn.Linear(1, 1)
 
     def forward(self, x):
-        x = self.W(x)
-        x = self.b(x)
+        x = self.layer(x)
+        # x = self.b(x)
         return x
 
 
@@ -60,7 +60,7 @@ loss_fn = nn.MSELoss()
 for epoch in range(1000):
     for x in X:
         x = torch.transpose(x, 1, 0)
-        y = torch.matmul(x, torch.transpose(W, 1, 0))
+        y = torch.matmul(x, torch.transpose(W, 1, 0))+1
         pred = model(x)
         loss = loss_fn(pred, y)
         optimizer.zero_grad()
