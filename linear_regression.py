@@ -44,6 +44,36 @@ class Linear_Regression(nn.Module):
         return x
 
 
+class SimpleTransformer(nn.Module):
+    def __init__(self, input_dim=3, nhead=1, num_layers=1, dim_feedforward=16):
+        super(SimpleTransformer, self).__init__()
+        self.embedding = nn.Linear(input_dim, dim_feedforward)
+        self.transformer = nn.Transformer(
+            d_model=dim_feedforward,
+            nhead=nhead,
+            num_encoder_layers=num_layers,
+            num_decoder_layers=num_layers,
+            dim_feedforward=dim_feedforward,
+            batch_first=True
+        )
+        self.fc_out = nn.Linear(dim_feedforward, 1)
+
+    def forward(self, src, tgt):
+        src = self.embedding(src)
+        tgt = self.embedding(tgt)
+        out = self.transformer(src, tgt)
+        out = self.fc_out(out)
+        return out
+
+# Example usage of SimpleTransformer
+# Generate random data for demonstration
+src = torch.rand(10, 5, 3)  # (batch, seq_len, input_dim)
+tgt = torch.rand(10, 5, 3)
+transformer_model = SimpleTransformer(input_dim=3)
+output = transformer_model(src, tgt)
+print('Transformer output shape:', output.shape)
+
+
 # 生成线性回归的数据
 # 生成数据
 # 假设现有线性回归模型，Y=[1,2,3]*X+1
